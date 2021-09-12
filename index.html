@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Jura:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="./css/normalize.css">
+    <link rel="stylesheet" href="./css/style.css">
+
+    <script src="./js/main.js" defer></script>
+
+    <title>Расписание</title>
+</head>
+<body>
+    <header class="header">
+        <div class="header-buttons">
+            <div class="buttons-week">
+                <button class="button-week-left">
+                    <img src="./img/arrow-left.svg" alt="" class="button-week-left-img icon">
+                </button>
+                <button class="button-week-right">
+                    <img src="./img/arrow-right.svg" alt="" class="button-week-right-img icon">
+                </button>
+            </div>
+            <button class="header-button-add">
+                <img src="./img/plus.svg" alt="add" class="header-button-add-img icon">
+            </button>
+        </div>
+    </header>
+    <main class="main">
+        <div class="table-day">
+            <h2 class="table-day-header">Понедельник, 13 сентября</h2>
+            <div class="table-day-tasks">
+                <div class="day-task">
+                    <p class="day-task-lesson-body nothomework">Не задано</p>
+                </div>    
+            </div>
+        </div>
+        <div class="table-day">
+            <h2 class="table-day-header">Вторник, 14 сентября</h2>
+            <div class="table-day-tasks">
+                <div class="day-task">
+                    <div class="day-task-lesson">
+                        <h3 class="day-task-lesson-name">Матанализ</h3>
+                        <p class="day-task-lesson-body">Задачи 1-2 по вариантам</p>
+                    </div>
+                    <div class="day-task-buttons">
+                        <button class="day-task-button">
+                            <img src="./img/delete.svg" alt="delete" class="day-task-button-delete-img">
+                        </button>
+                    </div>
+                </div>
+                <div class="day-task">
+                    <div class="day-task-lesson">
+                        <h3 class="day-task-lesson-name">Матанализ</h3>
+                        <p class="day-task-lesson-body">Задачи 1-2 по вариантам</p>
+                    </div>
+                    <div class="day-task-buttons">
+                        <button class="day-task-button">
+                            <img src="./img/delete.svg" alt="delete" class="day-task-button-delete-img">
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div class="dialogs"></div>
+</body>
+</html>
