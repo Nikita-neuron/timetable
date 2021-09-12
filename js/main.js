@@ -204,6 +204,7 @@ function dialogDeleteTask(date, name, homework) {
         };
         sendDataPost(server + "/tableData/delete", data).then(data => {
             if (data.message == "OK") {
+                console.log(data);
                 alert("Запись удалена");
 
                 dialogs.textContent = "";
@@ -212,6 +213,10 @@ function dialogDeleteTask(date, name, homework) {
                 getDataServer();
             }
         });
+        alert("Запись удалена");
+        dialogs.textContent = "";
+        dialogs.style.display = "none";
+        getDataServer();
     });
 }
 
@@ -314,6 +319,7 @@ headerButtonAdd.addEventListener('click', e => {
                 };
                 sendDataPost(server + "/tableData/update", data).then(data => {
                     console.log(data);
+                    getDataServer();
                 });
     
                 dialogs.textContent = "";
