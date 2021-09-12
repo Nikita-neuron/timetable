@@ -5,7 +5,7 @@ const main = document.querySelector(".main");
 const buttonWeekLeft = document.querySelector(".button-week-left");
 const buttonWeekRight = document.querySelector(".button-week-right");
 
-const server = "https://homeworktablejs.herokuapp.com/";
+const server = "https://homeworktablejs.herokuapp.com";
 
 // отправка POST запроса на сервер
 const sendDataPost = async function(url, data) {
