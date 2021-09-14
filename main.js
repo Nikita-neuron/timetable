@@ -5,7 +5,12 @@ const main = document.querySelector(".main");
 const buttonWeekLeft = document.querySelector(".button-week-left");
 const buttonWeekRight = document.querySelector(".button-week-right");
 
+const groupButtons = document.querySelector(".group-buttons");
+
 const server = "https://homeworktablejs.herokuapp.com";
+
+let GROUP = "";
+let groups = [];
 
 // отправка POST запроса на сервер
 const sendDataPost = async function(url, data) {
@@ -108,7 +113,7 @@ function updateCards(day, week, month, year) {
             <div class="table-day" id=d${currWeek[day]["day"]}>
                 <h2 class="table-day-header">${days[day]}, ${currWeek[day]["day"]} ${currWeek[day]["month"]}</h2>
                 <div class="table-day-tasks">
-                    <div class="day-task">
+                    <div class="day-task nHomework">
                         <p class="day-task-lesson-body nothomework">Не задано</p>
                     </div>   
                 </div>
@@ -120,56 +125,54 @@ function updateCards(day, week, month, year) {
     }
 
     // добавление заданий
-    for (let date in homework_data) {
+    for (let homeworkIndex in homework_data) {
+        let homework = homework_data[homeworkIndex];
+        let {group, date, lessonName, lessonBody} = homework;
         let currDate = new Date(date);
         if (currWeekMonth[currWeekDays.indexOf(currDate.getDate())] == monthNames[currDate.getMonth()]) {
             const tableDay = main.querySelector(`#d${currDate.getDate()}`);
             const tableDayTasks = tableDay.querySelector(".table-day-tasks");
+            const nHomework = tableDayTasks.querySelector(".nHomework");
 
-            let tasks = homework_data[date];
+            if (nHomework) tableDayTasks.textContent = "";
 
-            if (tasks.length > 0) {
-                tableDayTasks.textContent = "";
-                for (let elem in tasks) {
-                    let card = `
-                    <div class="day-task">
-                        <div class="day-task-lesson">
-                            <h3 class="day-task-lesson-name">${tasks[elem]["name"]}</h3>
-                            <div class="day-task-lesson-body">
-                                <p class="day-task-lesson-body-text">${tasks[elem]["homework"]}</p>
-                            </div>
-                        </div>
-                        <div class="day-task-buttons">
-                            <button class="day-task-button button-edit">
-                                <img src="./img/edit.svg" alt="edit" class="day-task-button-edit-img icon">
-                            </button>
-                            <button class="day-task-button button-delete">
-                                <img src="./img/delete.svg" alt="delete" class="day-task-button-delete-img icon">
-                            </button>
+            let card = `
+                <div class="day-task">
+                    <div class="day-task-lesson">
+                        <h3 class="day-task-lesson-name">${lessonName}</h3>
+                        <div class="day-task-lesson-body">
+                            <p class="day-task-lesson-body-text">${lessonBody}</p>
                         </div>
                     </div>
-                    `;
-                    tableDayTasks.insertAdjacentHTML('afterbegin', card);
+                    <div class="day-task-buttons">
+                        <button class="day-task-button button-edit">
+                            <img src="./img/edit.svg" alt="edit" class="day-task-button-edit-img icon">
+                        </button>
+                        <button class="day-task-button button-delete">
+                            <img src="./img/delete.svg" alt="delete" class="day-task-button-delete-img icon">
+                        </button>
+                    </div>
+                </div>
+            `;
+            tableDayTasks.insertAdjacentHTML('afterbegin', card);
 
-                    const dayTask = tableDayTasks.children[0];
-                    const dayTaskButtonDelete = dayTask.querySelector(".button-delete");
-                    const buttonEdit = dayTask.querySelector(".button-edit");
+            const dayTask = tableDayTasks.children[0];
+            const dayTaskButtonDelete = dayTask.querySelector(".button-delete");
+            const buttonEdit = dayTask.querySelector(".button-edit");
 
-                    buttonEdit.addEventListener('click', e => {
-                        alert("Данная кнопка пока не работает");
-                    });
+            buttonEdit.addEventListener('click', e => {
+                dialogEditHomework(date, lessonName, lessonBody);
+            });
 
-                    dayTaskButtonDelete.addEventListener('click', e => {
-                        dialogDeleteTask(date, tasks[elem]["name"], tasks[elem]["homework"]);
-                    });
-                }
-            }
+            dayTaskButtonDelete.addEventListener('click', e => {
+                dialogDeleteTask(date, lessonName, lessonBody);
+            });
         }
     }
 }
 
 // диалоговое окно удаления записи
-function dialogDeleteTask(date, name, homework) {
+function dialogDeleteTask(date, lessonName, lessonBody) {
     dialogs.style.display = "flex";
 
     dialogs.textContent = "";
@@ -198,12 +201,13 @@ function dialogDeleteTask(date, name, homework) {
 
     dialogAddButtonAdd.addEventListener('click', e => {
         let data = {
-            name: name,
+            group: GROUP,
             date: date,
-            homework: homework
+            lessonName: lessonName,
+            lessonBody: lessonBody
         };
-        sendDataPost(server + "/tableData/delete", data).then(data => {
-            if (data.message == "OK") {
+        sendDataPost(`${server}/table/remove`, data).then(data => {
+            if (data) {
                 alert("Запись удалена");
 
                 dialogs.textContent = "";
@@ -212,24 +216,206 @@ function dialogDeleteTask(date, name, homework) {
                 getDataServer();
             }
         });
+        dialogs.textContent = "";
+        dialogs.style.display = "none";
+        getDataServer();
+    });
+}
+
+// диалоговое окно редактирование записи
+function dialogEditHomework(date, lessonName, lessonBody) {
+    dialogs.style.display = "flex";
+
+    dialogs.textContent = "";
+
+    let htmlCard = `
+    <div class="dialog dialog-delete">
+        <div class="dialog-body dialog-delete-body">
+            <p>Редактирование записи</p>
+            <textarea class="lesson-homework">${lessonBody}</textarea>
+        </div>
+        <div class="dialog-buttons dialog-delete-buttons">
+            <button class="dialog-button-add dialog-delete-button-add">Сохранить</button>
+            <button class="dialog-button-close dialog-delete-button-close">Отмена</button>
+        </div>
+    </div>
+    `;
+
+    dialogs.insertAdjacentHTML('beforeend', htmlCard);
+
+    const dialogAddButtonAdd = dialogs.querySelector(".dialog-button-add");
+    const dialogAddButtonClose = dialogs.querySelector(".dialog-button-close");
+    const lessonHomework = dialogs.querySelector(".lesson-homework");
+
+    dialogAddButtonClose.addEventListener('click', e => {
+        dialogs.textContent = "";
+        dialogs.style.display = "none";
+    });
+
+    dialogAddButtonAdd.addEventListener('click', e => {
+        let text = lessonHomework.value;
+
+        if (text.length > 0) {
+            let data = {
+                group: GROUP,
+                date: date,
+                lessonName: lessonName,
+                lessonBody: text
+            };
+            sendDataPost(`${server}/table/edit`, data).then(data => {
+                if (data) {
+                    dialogs.textContent = "";
+                    dialogs.style.display = "none";
+    
+                    getDataServer();
+                }
+            });
+            dialogs.textContent = "";
+            dialogs.style.display = "none";
+            getDataServer();
+        }
+    });
+}
+
+// диалоговое окно добавления группы
+function dialogAddGroup() {
+    dialogs.style.display = "flex";
+
+    dialogs.textContent = "";
+
+    let htmlCard = `
+        <div class="dialog dialog-add-group">
+            <div class="dialog-body dialog-add-group-body">
+                <p>Добавить группу</p>
+                <input class="dialog-add-group-input" placeholder="Название группы">
+            </div>
+            <div class="dialog-buttons dialog-add-group-buttons">
+                <button class="dialog-button-add dialog-add-group-button-add">Добавить</button>
+                <button class="dialog-button-close dialog-add-group-button-close">Отмена</button>
+            </div>
+        </div>
+    `;
+    dialogs.insertAdjacentHTML('beforeend', htmlCard);
+
+    const dialogAddGroupInput = dialogs.querySelector(".dialog-add-group-input");
+    const dialogAddButtonAdd = dialogs.querySelector(".dialog-button-add");
+    const dialogAddButtonClose = dialogs.querySelector(".dialog-button-close");
+
+    dialogAddButtonAdd.addEventListener('click', e => {
+        let text = dialogAddGroupInput.value;
+
+        if (text.length > 0) {
+            groups.push(text);
+            GROUP = text;
+            updateLocalStorage();
+            updateGroupsButtons();
+            dialogs.textContent = "";
+            dialogs.style.display = "none";
+        }
+    });
+
+    dialogAddButtonClose.addEventListener('click', e => {
+        if (groups.length > 0) {
+            dialogs.textContent = "";
+            dialogs.style.display = "none";
+        }
     });
 }
 
 // получение данных с сервера
 function getDataServer() {
-    // получение записей с сервера
     let today = new Date();
-    getData(server + "/tableData/get").then(data => {
-        if (data.message == "OK") {
-            let hw = data.body;
+    getData(`${server}/table?group=${GROUP}`).then(data => {
+        if (data) {
+            let hw = data;
             main.textContent = "";
 
             homework_data = hw;
             updateCards(today.getDate(), today.getDay(), today.getMonth(), today.getFullYear());
         }
     });
-
     updateCards(today.getDate(), today.getDay(), today.getMonth(), today.getFullYear());
+}
+
+// обновление кнопок группы
+function updateGroupsButtons() {
+    groupButtons.textContent = "";
+    for (let i in groups) {
+        let name = groups[i];
+        let html = `
+            <button class="group-button" data-name=${name}>
+                <span class="group-name">${name}</span>
+                <img src="./img/cancel.svg" alt="cancel" class="group-cancel">
+            </button>
+        `;
+        groupButtons.insertAdjacentHTML('beforeend', html);
+    }
+
+    for (let ind = 0; ind < groupButtons.children.length; ind++) {
+        const groupButton = groupButtons.children[ind];
+        const groupName = groupButton.querySelector(".group-name");
+        const groupCancel = groupButton.querySelector(".group-cancel");
+
+        if (groupButton.dataset.name == GROUP) {
+            groupButton.classList.add("active-group");
+        }
+
+        groupButton.addEventListener('click', e => {
+            if (e.target == groupCancel) {
+                let lastName = groupName.textContent;
+                groups.splice([groups.indexOf(groupName.textContent)], 1);
+                
+                if (GROUP == lastName) GROUP = groups[0];
+                updateLocalStorage();
+                getDataServer();
+                updateGroupsButtons();
+            } else {
+                for (let ind = 0; ind < groupButtons.children.length; ind++) {
+                    let elem = groupButtons.children[ind];
+                    if (elem.classList.contains("active-group")) {
+                        elem.classList.remove("active-group");
+                    }
+                }
+                groupButton.classList.add("active-group");
+                GROUP = groupName.textContent;
+                updateLocalStorage();
+                getDataServer();
+            }
+        });
+    }
+    groupButtons.insertAdjacentHTML('beforeend', `
+        <button class="group-button group-button-add">
+            <span class="group-name">Добавить группу</span>
+        </button>
+    `);
+
+    const groupButtonAdd = groupButtons.querySelector(".group-button-add");
+    groupButtonAdd.addEventListener('click', e => {
+        dialogAddGroup();
+    });
+    if (groups.length == 0) dialogAddGroup();
+}
+
+// обновление localStorage
+function updateLocalStorage() {
+    localStorage.removeItem("timetable_");
+    let data = {
+        "groups": groups,
+        "active": GROUP
+    }
+    localStorage.setItem("timetable_", JSON.stringify(data));
+}
+
+// получение данных из localStorage
+function getGroupsStorage() {
+    let data = localStorage.getItem("timetable_");
+    if (data) {
+        data = JSON.parse(data);
+        groups = data.groups;
+        GROUP = data.active;
+    } else {
+        updateLocalStorage();
+    }
 }
 
 const today = new Date();
@@ -238,7 +424,9 @@ let currDate = today.getDate();
 let currMonth = today.getMonth();
 let currYear = today.getFullYear();
 
+getGroupsStorage();
 getDataServer();
+updateGroupsButtons();
 
 // нажатие кнопки Добавить
 headerButtonAdd.addEventListener('click', e => {
@@ -246,20 +434,34 @@ headerButtonAdd.addEventListener('click', e => {
 
     dialogs.textContent = "";
 
+    // let htmlCard = `
+    // <div class="dialog dialog-add">
+    //     <div class="dialog-body dialog-add-body">
+    //         <select class="lesson-name">
+    //             <option disabled selected value="Название предмета">Название предмета</option>
+    //             <option value="Математический анализ">Математический анализ</option>
+    //             <option value="Линейная алгебра и аналитическая геометрия">Линейная алгебра</option>
+    //             <option value="История">История</option>
+    //             <option value="Физика">Физика</option>
+    //             <option value="Процедурное программирование">Процедурное программирование</option>
+    //             <option value="Физическая культура и спорт">Физическая культура и спорт</option>
+    //             <option value="Информатика">Информатика</option>
+    //             <option value="Ин.яз.">Ин.яз.</option>
+    //         </select>
+    //         <input type="date" class="lesson-date">
+    //         <textarea class="lesson-homework"></textarea>
+    //     </div>
+    //     <div class="dialog-buttons dialog-add-buttons">
+    //         <button class="dialog-button-add dialog-add-button-add">Добавить</button>
+    //         <button class="dialog-button-close dialog-add-button-close">Отмена</button>
+    //     </div>
+    // </div>
+    // `;
+
     let htmlCard = `
     <div class="dialog dialog-add">
         <div class="dialog-body dialog-add-body">
-            <select class="lesson-name">
-                <option disabled selected value="Название предмета">Название предмета</option>
-                <option value="Математический анализ">Математический анализ</option>
-                <option value="Линейная алгебра и аналитическая геометрия">Линейная алгебра</option>
-                <option value="История">История</option>
-                <option value="Физика">Физика</option>
-                <option value="Процедурное программирование">Процедурное программирование</option>
-                <option value="Физическая культура и спорт">Физическая культура и спорт</option>
-                <option value="Информатика">Информатика</option>
-                <option value="Ин.яз.">Ин.яз.</option>
-            </select>
+            <input class="lesson-name" placeholder="Название предмета">
             <input type="date" class="lesson-date">
             <textarea class="lesson-homework"></textarea>
         </div>
@@ -289,18 +491,16 @@ headerButtonAdd.addEventListener('click', e => {
     });
 
     dialogAddButtonAdd.addEventListener('click', e => {
-        let name = lessonName.options[lessonName.selectedIndex].text;
+        // let name = lessonName.options[lessonName.selectedIndex].text;
+        let name = lessonName.value;
         let date = lessonDate.value;
         let homework = lessonHomework.value;
 
         if (name != "Название предмета" && date != "" && homework != "") {
             let repTask = false;
-            for (let dbDate in homework_data) {
-                if (date == dbDate) {
-                    let tasks = homework_data[date];
-                    for (let elem in tasks) {
-                        if (tasks[elem]["name"] == name) repTask = true;
-                    }
+            for (let homework in homework_data) {
+                if (homework_data[homework]["date"] == date && homework_data[homework]["lessonName"] == name) {
+                    repTask = true;
                 } 
             }
             
@@ -308,12 +508,13 @@ headerButtonAdd.addEventListener('click', e => {
                 alert("Для данного предмета запись уже существует");
             } else {
                 let data = {
-                    name: name,
+                    group: GROUP,
                     date: date,
-                    homework: homework
+                    lessonName: name,
+                    lessonBody: homework
                 };
-                sendDataPost(server + "/tableData/update", data).then(data => {
-                    console.log(data);
+                sendDataPost(`${server}/table/add`, data).then(data => {
+                    getDataServer();
                 });
     
                 dialogs.textContent = "";
