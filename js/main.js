@@ -409,10 +409,13 @@ function updateLocalStorage() {
 // получение данных из localStorage
 function getGroupsStorage() {
     let data = localStorage.getItem("timetable_");
-    data = JSON.parse(data);
-
-    groups = data.groups;
-    GROUP = data.active;
+    if (data) {
+        data = JSON.parse(data);
+        groups = data.groups;
+        GROUP = data.active;
+    } else {
+        updateLocalStorage();
+    }
 }
 
 const today = new Date();
