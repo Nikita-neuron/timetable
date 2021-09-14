@@ -35,7 +35,45 @@ button {
     background-color: #2e2e2e9c;
 }
 
-.header-buttons {
+.group-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.group-button {
+    padding: 10px 20px;
+    background-color: #C8A6A6;
+    border-radius: 20px;
+
+    display: flex;
+    align-items: center;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    order: 3;
+}
+
+.group-name {
+    font-size: 15px;
+    margin-right: 10px;
+}
+
+.group-cancel {
+    width: 15px;
+    height: 15px;
+}
+
+.active-group {
+    background-color: #6BC95C;
+    order: 0;
+}
+
+.group-button-add {
+    background-color: #C4C4C4;
+}
+
+.controll-buttons {
     display: flex;
     justify-content: space-between;
     padding: 10px 0;
