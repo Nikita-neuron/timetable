@@ -7,8 +7,7 @@ const buttonWeekRight = document.querySelector(".button-week-right");
 
 const groupButtons = document.querySelector(".group-buttons");
 
-// const server = "https://homeworktablejs.herokuapp.com";
-const server = "http://192.168.1.4:50001";
+const server = "https://homeworktablejs.herokuapp.com";
 
 let GROUP = "";
 let groups = [];
