@@ -434,20 +434,34 @@ headerButtonAdd.addEventListener('click', e => {
 
     dialogs.textContent = "";
 
+    // let htmlCard = `
+    // <div class="dialog dialog-add">
+    //     <div class="dialog-body dialog-add-body">
+    //         <select class="lesson-name">
+    //             <option disabled selected value="Название предмета">Название предмета</option>
+    //             <option value="Математический анализ">Математический анализ</option>
+    //             <option value="Линейная алгебра и аналитическая геометрия">Линейная алгебра</option>
+    //             <option value="История">История</option>
+    //             <option value="Физика">Физика</option>
+    //             <option value="Процедурное программирование">Процедурное программирование</option>
+    //             <option value="Физическая культура и спорт">Физическая культура и спорт</option>
+    //             <option value="Информатика">Информатика</option>
+    //             <option value="Ин.яз.">Ин.яз.</option>
+    //         </select>
+    //         <input type="date" class="lesson-date">
+    //         <textarea class="lesson-homework"></textarea>
+    //     </div>
+    //     <div class="dialog-buttons dialog-add-buttons">
+    //         <button class="dialog-button-add dialog-add-button-add">Добавить</button>
+    //         <button class="dialog-button-close dialog-add-button-close">Отмена</button>
+    //     </div>
+    // </div>
+    // `;
+
     let htmlCard = `
     <div class="dialog dialog-add">
         <div class="dialog-body dialog-add-body">
-            <select class="lesson-name">
-                <option disabled selected value="Название предмета">Название предмета</option>
-                <option value="Математический анализ">Математический анализ</option>
-                <option value="Линейная алгебра и аналитическая геометрия">Линейная алгебра</option>
-                <option value="История">История</option>
-                <option value="Физика">Физика</option>
-                <option value="Процедурное программирование">Процедурное программирование</option>
-                <option value="Физическая культура и спорт">Физическая культура и спорт</option>
-                <option value="Информатика">Информатика</option>
-                <option value="Ин.яз.">Ин.яз.</option>
-            </select>
+            <input class="lesson-name" placeholder="Название предмета">
             <input type="date" class="lesson-date">
             <textarea class="lesson-homework"></textarea>
         </div>
@@ -477,7 +491,8 @@ headerButtonAdd.addEventListener('click', e => {
     });
 
     dialogAddButtonAdd.addEventListener('click', e => {
-        let name = lessonName.options[lessonName.selectedIndex].text;
+        // let name = lessonName.options[lessonName.selectedIndex].text;
+        let name = lessonName.value;
         let date = lessonDate.value;
         let homework = lessonHomework.value;
 
